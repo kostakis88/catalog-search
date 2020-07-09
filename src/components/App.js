@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { filterChange } from '../actions/index';
 import SearchBar from './SearchBar';
 import CardList from './CardList';
 
 class App extends Component {
 
   state = {
-    users: [],
-    searchField: ''
+    users: []
   };
 
   componentDidMount() {
@@ -19,23 +20,29 @@ class App extends Component {
     })
   }
 
-  handleSearchBarChange = (event) => {
-    this.setState({
-      searchField: event.target.value
-    });
-  }
-
   render() {
     let filteredUsers = this.state.users.filter(user => {
-      return user.name.toLocaleLowerCase().includes(this.state.searchField.toLocaleLowerCase());
+      return user.name.toLocaleLowerCase().includes(this.props.searchField.toLocaleLowerCase());
     });
     return (
       <div>
-        <SearchBar onChange={this.handleSearchBarChange} value={this.state.searchField}/>
+        <SearchBar onChange={this.props.onSearchBarChange} value={this.props.searchField}/>
         <CardList users={filteredUsers}/>
       </div>
     );
   }
 }
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    searchField: state.searchFilter.searchField
+  }
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onSearchBarChange: (event) => dispatch(filterChange(event.target.value))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
